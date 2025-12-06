@@ -11,7 +11,7 @@ def client():
 
 def test_login_register(client):
     response = client.post("/register", data = {"username" : "hugoo", "password" : "Hugo@1234", "confirm" : "Hugo@1234"}, follow_redirects=True)
-    assert response.status_code == 201
+    assert response.status_code == 200
 
     response = client.post("/login", data = {"username" : "hugoo", "password" : "Hugo@1234"}, follow_redirects=True)
     assert response.status_code == 200
