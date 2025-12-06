@@ -1,6 +1,7 @@
 import pytest
 from app import create_app, db
 
+@pytest.fixture
 def client():
     app = create_app(testing = True)
     with app.app_context():
