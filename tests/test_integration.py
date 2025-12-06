@@ -10,30 +10,27 @@ def client():
         db.drop_all()
 
 def test_login_register(client):
-    response = client.post("/register", json = {"username" : "hugo", "password" : "hugo1"})
+    response = client.post("/register", json = {"username" : "hugoo", "password" : "Hugo@1234", "confirm" : "Hugo@1234"}, follow_redirects=True)
     assert response.status_code == 201
 
-    response = client.post("/login", json = {"username" : "hugo", "password" : "hugo1"})
+    response = client.post("/login", json = {"username" : "hugoo", "password" : "Hugo@1234"}, follow_redirects=True)
     assert response.status_code == 200
+    assert b"Logged in successfully" in response.data
 
 def test_create_task(client):
-    client.post("/register", json = {"username" : "hugo", "password" : "hugo1"})
-    login = client.post("/login", json = {"username" : "hugo", "password" : "hugo1"})
-    login.json["token"]
+    client.post("/register", json = {"username" : "hugoo", "password" : "Hugo@1234", "confirm" : "Hugo@1234"}, follow_redirects=True)
+    client.post("/login", json = {"username" : "hugoo", "password" : "Hugo@1234"}, follow_redirects=True)
+    response = client.post("/tasks/new", data = {"title" : "Task", "description" : "description", "due_date" : "2025-12-07"}, follow_redirects=True)
 
-    response = client.post("/tasks", json = {"title" : "give tp"})
-
-    assert response.status_code == 201
-    assert response.json["title"] == "give tp"
+    assert response.status_code == 200
+    assert b"Task created." in response.data
 
 def test_editing_toggling_task(client):
-    client.post("/register", json = {"username" : "hugo", "password" : "hugo1"})
-    login = client.post("/login", json = {"username" : "hugo", "password" : "hugo1"})
-    login.json["token"]
+    client.post("/register", json = {"username" : "hugoo", "password" : "Hugo@1234", "confirm" : "Hugo@1234"}, follow_redirects=True)
+    client.post("/login", json = {"username" : "hugoo", "password" : "Hugo@1234"}, follow_redirects=True)
+    client.post("/tasks/new", data = {"title" : "Task"})
 
-    task = client.post("/tasks", json = {"title" : "give tp"})
-    taskID = task.json["id"]
-    toggle_task = client.put(f"/tasks/{taskID}/toggle")
+    response = client.post("/tasks/1/toggle", follow_redirects=True)
 
-    assert toggle_task.status_code == 200
-    assert toggle_task.json["completed"] is True
+    assert response.status_code == 200
+    assert b"Task status updated" in response.data
