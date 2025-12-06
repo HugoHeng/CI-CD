@@ -32,21 +32,26 @@ def _build_postgres_uri() -> str:
     return f"postgresql+psycopg2://{user}:{password}@{host}:{port}/{name}"
 
 
-def create_app():
+def create_app(testing=False):
     app = Flask(__name__)
 
     app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "dev-unsafe-secret")
-    app.config["SQLALCHEMY_DATABASE_URI"] = _build_postgres_uri()
+
+    if testing:
+        app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///:memory:"
+        app.config["TESTING"] = True
+    else:
+        app.config["SQLALCHEMY_DATABASE_URI"] = _build_postgres_uri()
+
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-
     db.init_app(app)
-
     with app.app_context():
-        from models import User, Task  # noqa: F401
+        from models import User, Task
         db.create_all()
 
     register_routes(app)
     return app
+
 
 
 
