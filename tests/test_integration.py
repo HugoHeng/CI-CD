@@ -34,3 +34,4 @@ def test_editing_toggling_task(client):
 
     assert response.status_code == 200
     assert b"Task status updated" in response.data
+    
